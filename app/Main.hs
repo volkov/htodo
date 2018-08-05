@@ -14,6 +14,8 @@ list = List
 main :: IO ()
 main = cmdArgs (modes [add, list]) >>= exec
 
+fileName = ".htodo"
+
 exec :: Command -> IO() 
-exec List                = readFile ".htodo" >>= putStrLn 
-exec Add {title = title} = appendFile ".htodo" (title ++ "\n")
+exec List                = readFile fileName >>= putStrLn 
+exec Add {title = title} = appendFile fileName (title ++ "\n")
