@@ -12,8 +12,8 @@ add = Add{title = def &= argPos 0} &= auto
 list = List
 
 main :: IO ()
-main = cmdArgs (modes [add, list]) >>= \action -> print (exec action)
+main = cmdArgs (modes [add, list]) >>= exec
 
-exec :: Command -> String
-exec List = "List not implemented"
-exec Add {title = title} = "Add not implemented: " ++ title
+exec :: Command -> IO() 
+exec List                = readFile ".htodo" >>= putStrLn 
+exec Add {title = title} = appendFile ".htodo" (title ++ "\n")
