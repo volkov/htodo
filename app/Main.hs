@@ -12,7 +12,8 @@ add = Add{title = def &= argPos 0} &= auto
 list = List
 
 main :: IO ()
-main = print =<< cmdArgs (modes [add, list])
+main = cmdArgs (modes [add, list]) >>= \action -> print (exec action)
 
 exec :: Command -> String
-exec = show
+exec List = "List not implemented"
+exec Add {title = title} = "Add not implemented: " ++ title
