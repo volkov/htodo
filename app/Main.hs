@@ -1,12 +1,21 @@
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveGeneric #-}
+
 module Main where
 
 import Lib
 import System.Console.CmdArgs
+import Data.Yaml
+import GHC.Generics
 
-data Command = Add {title :: String}
+data Command = Add { title :: String }
              | List
                deriving (Show, Data, Typeable)
+
+data Task = Task { name :: String } deriving (Show, Generic)
+instance ToJSON Task
+instance FromJSON Task
 
 add = Add{title = def &= argPos 0} &= auto
 list = List
@@ -14,8 +23,15 @@ list = List
 main :: IO ()
 main = cmdArgs (modes [add, list]) >>= exec
 
+fileName :: FilePath
 fileName = ".htodo"
 
 exec :: Command -> IO() 
-exec List                = readFile fileName >>= putStrLn 
-exec Add {title = title} = appendFile fileName (title ++ "\n")
+exec List                = readTasks >>= putStrLn . show
+exec Add {title = title} = readTasks >>= \ts -> writeTasks ((Task title):ts)
+
+readTasks :: IO [Task]
+readTasks = decodeFileThrow fileName
+
+writeTasks :: [Task] -> IO ()
+writeTasks = encodeFile fileName 
