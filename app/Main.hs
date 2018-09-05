@@ -8,6 +8,7 @@ import Lib
 import System.Console.CmdArgs
 import Data.Yaml
 import GHC.Generics
+import System.Directory
 
 data Command = Add { title :: String }
              | List
@@ -31,7 +32,8 @@ exec List                = readTasks >>= putStrLn . show
 exec Add {title = title} = readTasks >>= \ts -> writeTasks ((Task title):ts)
 
 readTasks :: IO [Task]
-readTasks = decodeFileThrow fileName
+readTasks = doesPathExist fileName >>= \exists -> if exists then decodeFileThrow fileName 
+                                                             else return []
 
 writeTasks :: [Task] -> IO ()
 writeTasks = encodeFile fileName 
