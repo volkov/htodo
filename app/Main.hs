@@ -11,6 +11,8 @@ import GHC.Generics
 import System.Directory
 
 data Command = Add { title :: String }
+             | Done { index :: Int }
+             | DoneAll
              | List
                deriving (Show, Data, Typeable)
 
@@ -19,10 +21,12 @@ instance ToJSON Task
 instance FromJSON Task
 
 add = Add{title = def &= argPos 0} &= auto
+done = Done{index = def &= argPos 0}
+doneAll = DoneAll
 list = List
 
 main :: IO ()
-main = cmdArgs (modes [add, list]) >>= exec
+main = cmdArgs (modes [add, done, doneAll, list]) >>= exec
 
 fileName :: FilePath
 fileName = ".htodo"
@@ -30,6 +34,8 @@ fileName = ".htodo"
 exec :: Command -> IO() 
 exec List                = readTasks >>= putStrLn . show
 exec Add {title = title} = readTasks >>= \ts -> writeTasks ((Task title):ts)
+exec Done {index = index} = readTasks >>= \ts -> writeTasks (take index ts ++ drop (index + 1) ts)
+exec DoneAll =  writeTasks []
 
 readTasks :: IO [Task]
 readTasks = doesPathExist fileName >>= \exists -> if exists then decodeFileThrow fileName 
