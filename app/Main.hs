@@ -32,7 +32,7 @@ fileName :: FilePath
 fileName = ".htodo"
 
 exec :: Command -> IO() 
-exec List                = readTasks >>= putStrLn . show
+exec List                = readTasks >>= mapM_ print 
 exec Add {title = title} = process (\ts -> (Task title):ts)
 exec Done {index = index} = process (\ts -> take index ts ++ drop (index + 1) ts)
 exec DoneAll =  writeTasks []
