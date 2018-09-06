@@ -33,9 +33,12 @@ fileName = ".htodo"
 
 exec :: Command -> IO() 
 exec List                = readTasks >>= putStrLn . show
-exec Add {title = title} = readTasks >>= \ts -> writeTasks ((Task title):ts)
-exec Done {index = index} = readTasks >>= \ts -> writeTasks (take index ts ++ drop (index + 1) ts)
+exec Add {title = title} = process (\ts -> (Task title):ts)
+exec Done {index = index} = process (\ts -> take index ts ++ drop (index + 1) ts)
 exec DoneAll =  writeTasks []
+
+process :: ([Task] -> [Task]) -> IO()
+process f = readTasks >>= \ts -> writeTasks (f ts)
 
 readTasks :: IO [Task]
 readTasks = doesPathExist fileName >>= \exists -> if exists then decodeFileThrow fileName 
